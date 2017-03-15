@@ -256,6 +256,11 @@ k () {
     typeset -A sv
 
     STATS_PARAMS_LIST=()
+    if [[ -z $show_list ]]; then
+      # There's nothing for us to show, just return
+      return 0
+    fi
+
     for fn in $show_list
     do
       statvar="stats_$i"
@@ -297,6 +302,12 @@ k () {
     if [[ "$o_absolute_colors" == "" ]]; then
       # Calculate limits for colors; use an exponential scale
       typeset X=$(( ($MAX_SIZE - $MIN_SIZE) ** (1.0 / 10) ))
+      if [[ $X -eq 0 ]]; then
+        # If X is '0.', that is a floating point zero, then
+        # zsh freaks out and decides it needs to divide by zero
+        # to do the exponentiation. Which is wrong.
+        X=0
+      fi
       SIZELIMITS_TO_COLOR=(
         $(( $MIN_SIZE + int($X ** 0) ))  46
         $(( $MIN_SIZE + int($X ** 1) ))  82
